@@ -12,13 +12,19 @@ module.exports = {
 		},
 	},
 	Mutation: {
-		async nominateMovie(_, { movieInput: { Poster, Title, Year, imdbID } }) {
-			try {
-				let movie = await Movie.findOne({ imdbID });
+		async nominateMovies(_, { movieInputs }) {
+			const findMoviesPromise = movieInputs.map((movie) => {
+				const { imdbID } = movie;
+				return Movie.findOne({ imdbID });
+			});
+			const movieExistsResults = await Promise.all(findMoviesPromise);
+
+			const updateMoviesPromises = movieExistsResults.map((movie, index) => {
 				if (movie) {
 					movie.voteCount += 1;
-					return await movie.save();
+					return movie.save();
 				} else {
+					const { Poster, Title, Year, imdbID } = movieInputs[index];
 					const newMovie = new Movie({
 						Poster,
 						Title,
@@ -26,11 +32,13 @@ module.exports = {
 						imdbID,
 						voteCount: 1,
 					});
-					return await newMovie.save();
+					return newMovie.save();
 				}
-			} catch (err) {
-				throw new Error(err);
-			}
+			});
+
+			const updatedMovies = await Promise.all(updateMoviesPromises);
+
+			return updatedMovies;
 		},
 	},
 };

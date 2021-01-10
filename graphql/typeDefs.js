@@ -19,6 +19,8 @@ module.exports = gql`
 		getNominations: [Movie]!
 	}
 	type Mutation {
-		nominateMovie(movieInput: MovieInput!): Movie!
+		nominateMovies(movieInputs: [MovieInput]!): [Movie]!
 	}
 `;
+
+//nominateMovies(movieInputs: [MovieInput]!): [Movie]!
