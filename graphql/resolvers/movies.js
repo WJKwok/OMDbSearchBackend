@@ -4,7 +4,7 @@ module.exports = {
 	Query: {
 		async getNominations() {
 			try {
-				const movies = await Movie.find();
+				const movies = await Movie.find().sort({ voteCount: -1 });
 				return movies;
 			} catch (err) {
 				throw new Error(err);
